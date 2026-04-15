@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { fachowcy } from '../data/fachowcy'
 import KartaFachowca from '../components/KartaFachowca'
@@ -12,6 +12,12 @@ const DEFAULT_FILTRY = {
   tylkoZweryfikowani: false,
 }
 
+const SORTOWANIE_OPTIONS = [
+  { value: 'ocena', label: '⭐ Najwyżej oceniani' },
+  { value: 'cena', label: '💰 Najtańsi' },
+  { value: 'opinie', label: '💬 Najwięcej opinii' },
+]
+
 function normalizeStr(s) {
   return s.toLowerCase()
     .replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
@@ -20,12 +26,12 @@ function normalizeStr(s) {
 }
 
 export default function Szukaj() {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams] = useSearchParams()
   const [query, setQuery] = useState(searchParams.get('q') || '')
   const [inputVal, setInputVal] = useState(searchParams.get('q') || '')
   const [filtrySidebar, setFiltrySidebar] = useState(false)
+  const [sortowanie, setSortowanie] = useState('ocena')
 
-  // Init filters from URL params
   const [filtry, setFiltry] = useState(() => ({
     ...DEFAULT_FILTRY,
     kategoria: searchParams.get('kategoria') || null,
@@ -39,7 +45,6 @@ export default function Szukaj() {
   const wyniki = useMemo(() => {
     let lista = fachowcy
 
-    // Text search
     if (query) {
       const q = normalizeStr(query)
       lista = lista.filter((f) => {
@@ -48,7 +53,6 @@ export default function Szukaj() {
       })
     }
 
-    // Filtry
     if (filtry.wojewodztwo) {
       const wNorm = normalizeStr(filtry.wojewodztwo)
       lista = lista.filter((f) => normalizeStr(f.wojewodztwo) === wNorm)
@@ -66,8 +70,14 @@ export default function Szukaj() {
       lista = lista.filter((f) => f.zweryfikowany)
     }
 
-    return lista
-  }, [query, filtry])
+    // Sorting
+    const sorted = [...lista]
+    if (sortowanie === 'ocena') sorted.sort((a, b) => b.ocena - a.ocena)
+    else if (sortowanie === 'cena') sorted.sort((a, b) => a.cenaOd - b.cenaOd)
+    else if (sortowanie === 'opinie') sorted.sort((a, b) => b.liczbaOpinii - a.liczbaOpinii)
+
+    return sorted
+  }, [query, filtry, sortowanie])
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
@@ -95,28 +105,52 @@ export default function Szukaj() {
       </form>
 
       <div className="flex gap-6">
-        {/* Sidebar — desktop always visible, mobile toggle */}
+        {/* Sidebar */}
         <div className={`${filtrySidebar ? 'block' : 'hidden'} lg:block w-full lg:w-72 shrink-0`}>
           <Filtry filtry={filtry} onFiltry={setFiltry} />
         </div>
 
         {/* Results */}
         <div className="flex-1 min-w-0">
-          {/* Result count */}
-          <div className="flex items-center justify-between mb-4">
+          {/* Result count + sorting */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <p className="text-gray-600 text-sm">
               Znaleziono <span className="font-bold text-gray-900">{wyniki.length}</span> fachowców
               {query && <span className="text-primary"> dla „{query}"</span>}
               {filtry.wojewodztwo && <span className="text-primary"> w {filtry.wojewodztwo}</span>}
             </p>
-            {Object.values({ ...filtry, cenaMin: filtry.cenaMin > 0 ? filtry.cenaMin : null }).some(Boolean) && (
-              <button
-                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
-                onClick={() => setFiltry(DEFAULT_FILTRY)}
-              >
-                Wyczyść filtry ×
-              </button>
-            )}
+
+            <div className="flex items-center gap-3 flex-wrap">
+              {/* Sort selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 font-medium whitespace-nowrap">Sortuj:</span>
+                <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white shadow-sm">
+                  {SORTOWANIE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSortowanie(opt.value)}
+                      className={`
+                        text-xs font-semibold px-3 py-2 transition-all duration-150 whitespace-nowrap
+                        ${sortowanie === opt.value
+                          ? 'bg-primary text-white'
+                          : 'text-gray-600 hover:bg-gray-50'}
+                      `}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {Object.values({ ...filtry, cenaMin: filtry.cenaMin > 0 ? filtry.cenaMin : null }).some(Boolean) && (
+                <button
+                  className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  onClick={() => setFiltry(DEFAULT_FILTRY)}
+                >
+                  Wyczyść filtry ×
+                </button>
+              )}
+            </div>
           </div>
 
           {wyniki.length > 0 ? (

@@ -26,6 +26,30 @@ const STATS = [
 
 const POPULAR_KATEGORIE = ['Elektryk', 'Hydraulik', 'Murarz', 'Tynkarz', 'Dekarz', 'Malarz', 'Glazurnik', 'Stolarz']
 
+const HOW_IT_WORKS = [
+  {
+    step: '1',
+    icon: '🔍',
+    title: 'Szukaj',
+    desc: 'Wpisz specjalizację i miejscowość. Znajdziemy sprawdzonych fachowców w Twojej okolicy.',
+    color: 'from-blue-500 to-indigo-600',
+  },
+  {
+    step: '2',
+    icon: '📋',
+    title: 'Porównaj',
+    desc: 'Przeglądaj profile, oceny i ceny. Zapisuj ulubionych i wybierz najlepszego dla siebie.',
+    color: 'from-violet-500 to-purple-600',
+  },
+  {
+    step: '3',
+    icon: '📞',
+    title: 'Zamów',
+    desc: 'Skontaktuj się bezpośrednio z fachowcem. Bez pośredników, bez ukrytych opłat.',
+    color: 'from-emerald-500 to-green-600',
+  },
+]
+
 export default function LandingPage() {
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
@@ -132,7 +156,7 @@ export default function LandingPage() {
           {POPULAR_KATEGORIE.map((kat) => (
             <button
               key={kat}
-              onClick={() => navigate(`/szukaj?kategoria=${encodeURIComponent(kat)}`)}
+              onClick={() => navigate(`/kategoria/${encodeURIComponent(kat)}`)}
               className="card p-5 flex flex-col items-center gap-3 group hover:-translate-y-1 transition-all duration-200 cursor-pointer"
             >
               <span className="text-4xl transition-transform duration-200 group-hover:scale-110">
@@ -145,27 +169,48 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="bg-gradient-to-br from-blue-50 to-indigo-50 py-16 px-4">
+      <section className="py-20 px-4" style={{ background: 'linear-gradient(135deg, #f0f4ff 0%, #e8f5e9 100%)' }}>
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Jak to działa?</h2>
-            <p className="text-gray-500">Prosty proces w 3 krokach</p>
+          <div className="text-center mb-14">
+            <h2 className="text-3xl font-extrabold text-gray-900 mb-3">Jak to działa?</h2>
+            <p className="text-gray-500 text-lg">Trzy proste kroki do znalezienia idealnego fachowca</p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-8">
-            {[
-              { step: '1', icon: '🔍', title: 'Wyszukaj', desc: 'Podaj lokalizację i typ fachowca którego potrzebujesz' },
-              { step: '2', icon: '📋', title: 'Porównaj', desc: 'Przeglądaj profile, opinie i ceny. Wybierz najlepszego' },
-              { step: '3', icon: '📞', title: 'Skontaktuj się', desc: 'Zadzwoń lub napisz bezpośrednio do wybranego specjalisty' },
-            ].map((item) => (
-              <div key={item.step} className="card p-6 text-center">
-                <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center font-bold text-xl mx-auto mb-4">
-                  {item.step}
+
+          <div className="grid sm:grid-cols-3 gap-6 relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden sm:block absolute top-14 left-1/6 right-1/6 h-0.5 bg-gradient-to-r from-blue-300 via-violet-300 to-emerald-300 z-0" />
+
+            {HOW_IT_WORKS.map((item, idx) => (
+              <div key={item.step} className="relative z-10 flex flex-col items-center text-center">
+                {/* Step badge */}
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-lg mb-5 transition-transform duration-300 hover:scale-110 hover:shadow-xl`}>
+                  <span className="text-3xl">{item.icon}</span>
                 </div>
-                <div className="text-3xl mb-3">{item.icon}</div>
-                <h3 className="font-bold text-lg text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-gray-500 text-sm">{item.desc}</p>
+
+                {/* Step number pill */}
+                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mb-3 bg-gradient-to-r ${item.color} text-white shadow`}>
+                  Krok {item.step}
+                </span>
+
+                <h3 className="text-xl font-extrabold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed max-w-xs">{item.desc}</p>
+
+                {/* Arrow between steps */}
+                {idx < HOW_IT_WORKS.length - 1 && (
+                  <div className="sm:hidden text-3xl text-gray-300 mt-4">↓</div>
+                )}
               </div>
             ))}
+          </div>
+
+          {/* CTA below steps */}
+          <div className="text-center mt-12">
+            <button
+              onClick={() => navigate('/szukaj')}
+              className="btn-primary px-8 py-4 text-base shadow-lg hover:shadow-xl"
+            >
+              🔍 Zacznij szukać fachowca
+            </button>
           </div>
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useSaved } from '../context/SavedContext'
 
 function Stars({ rating }) {
   const full = Math.floor(rating)
@@ -26,6 +27,8 @@ function Avatar({ imie, nazwisko }) {
 
 export default function KartaFachowca({ fachowiec }) {
   const { id, imie, nazwisko, specjalizacja, miasto, wojewodztwo, ocena, liczbaOpinii, cenaOd, zweryfikowany } = fachowiec
+  const { toggleSave, isSaved } = useSaved()
+  const saved = isSaved(id)
 
   return (
     <div className="card p-5 flex flex-col sm:flex-row gap-4">
@@ -64,7 +67,24 @@ export default function KartaFachowca({ fachowiec }) {
       </div>
 
       {/* CTA */}
-      <div className="flex items-center sm:items-end">
+      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-end gap-2">
+        {/* Save button */}
+        <button
+          onClick={() => toggleSave(fachowiec)}
+          title={saved ? 'Usuń z zapisanych' : 'Zapisz fachowca'}
+          className={`
+            flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl border-2 transition-all duration-200 active:scale-95
+            ${saved
+              ? 'bg-rose-50 border-rose-300 text-rose-600 hover:bg-rose-100'
+              : 'bg-white border-gray-200 text-gray-400 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50'}
+          `}
+        >
+          <span className={`text-base transition-transform duration-200 ${saved ? 'scale-110' : 'group-hover:scale-110'}`}>
+            {saved ? '❤️' : '🤍'}
+          </span>
+          <span className="hidden sm:inline">{saved ? 'Zapisano' : 'Zapisz'}</span>
+        </button>
+
         <Link
           to={`/fachowiec/${id}`}
           className="btn-primary text-sm whitespace-nowrap w-full sm:w-auto text-center"
