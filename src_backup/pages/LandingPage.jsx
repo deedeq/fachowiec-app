@@ -2,27 +2,24 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { kategorie } from '../data/fachowcy'
 
-import { LogoIcon } from '../components/Logo'
-import { Zap, Droplets, BrickWall, PaintRoller, Home, Paintbrush, Grid2x2, Hammer, Ruler, Flame, DraftingCompass, HardHat, Lamp } from 'lucide-react'
-
 const KATEGORIE_ICONS = {
-  'Elektryk': <Zap size={40} className="text-yellow-500" strokeWidth={1.5} />,
-  'Hydraulik': <Droplets size={40} className="text-blue-500" strokeWidth={1.5} />,
-  'Murarz': <BrickWall size={40} className="text-amber-700" strokeWidth={1.5} />,
-  'Tynkarz': <PaintRoller size={40} className="text-slate-400" strokeWidth={1.5} />,
-  'Dekarz': <Home size={40} className="text-red-700" strokeWidth={1.5} />,
-  'Malarz': <Paintbrush size={40} className="text-indigo-400" strokeWidth={1.5} />,
-  'Glazurnik': <Grid2x2 size={40} className="text-emerald-500" strokeWidth={1.5} />,
-  'Stolarz': <Hammer size={40} className="text-amber-800" strokeWidth={1.5} />,
-  'Cieśla': <Ruler size={40} className="text-violet-500" strokeWidth={1.5} />,
-  'Spawacz': <Flame size={40} className="text-orange-500" strokeWidth={1.5} />,
-  'Architekt': <DraftingCompass size={40} className="text-blue-600" strokeWidth={1.5} />,
-  'Inżynier budowlany': <HardHat size={40} className="text-amber-400" strokeWidth={1.5} />,
-  'Projektant wnętrz': <Lamp size={40} className="text-teal-500" strokeWidth={1.5} />,
+  'Elektryk': '⚡',
+  'Hydraulik': '🔧',
+  'Murarz': '🧱',
+  'Tynkarz': '🖌️',
+  'Dekarz': '🏠',
+  'Malarz': '🎨',
+  'Glazurnik': '🔲',
+  'Stolarz': '🪵',
+  'Cieśla': '🪚',
+  'Spawacz': '🔩',
+  'Architekt': '📐',
+  'Inżynier budowlany': '🏗️',
+  'Projektant wnętrz': '🛋️',
 }
 
 const STATS = [
-  { value: '60+', label: 'fachowców', icon: '👷' },
+  { value: '120+', label: 'fachowców', icon: '👷' },
   { value: '16', label: 'województw', icon: '🗺️' },
   { value: '480+', label: 'zleceń', icon: '📋' },
 ]
@@ -78,7 +75,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto relative z-10 text-center">
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
-            <LogoIcon className="w-16 h-16 text-white drop-shadow-md" />
+            <span className="text-5xl drop-shadow-lg">🛠️</span>
             <h1 className="text-5xl md:text-6xl font-extrabold text-white tracking-tight">
               Fachowiec<span className="text-[#ff6d00]">.app</span>
             </h1>
@@ -162,8 +159,8 @@ export default function LandingPage() {
               onClick={() => navigate(`/kategoria/${encodeURIComponent(kat)}`)}
               className="card p-5 flex flex-col items-center gap-3 group hover:-translate-y-1 transition-all duration-200 cursor-pointer"
             >
-              <span className="transition-transform duration-200 group-hover:scale-110">
-                {KATEGORIE_ICONS[kat] || <Hammer size={40} />}
+              <span className="text-4xl transition-transform duration-200 group-hover:scale-110">
+                {KATEGORIE_ICONS[kat] || '🔨'}
               </span>
               <span className="font-semibold text-gray-800 text-sm">{kat}</span>
             </button>
@@ -223,7 +220,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto card p-10 text-center"
           style={{ background: 'linear-gradient(135deg, #1a73e8, #0d47a1)' }}>
           <h2 className="text-3xl font-extrabold text-white mb-4">Jesteś fachowcem?</h2>
-          <p className="text-blue-200 mb-8 text-lg">Dołącz do ponad 60 specjalistów i zdobywaj zlecenia online</p>
+          <p className="text-blue-200 mb-8 text-lg">Dołącz do ponad 120 specjalistów i zdobywaj zlecenia online</p>
           <button
             onClick={() => navigate('/rejestracja')}
             className="bg-accent text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition-all duration-200 hover:shadow-lg active:scale-95"

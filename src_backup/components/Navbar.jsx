@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useSaved } from '../context/SavedContext'
 import { useAuth } from '../context/AuthContext'
-import { LogoIcon } from './Logo'
-import { Search } from 'lucide-react'
 
 // Notification bell component
 function NotificationBell({ count = 3 }) {
@@ -110,9 +108,10 @@ export default function Navbar() {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <LogoIcon className="w-10 h-10 text-primary" />
-          <span className="font-extrabold text-xl md:text-2xl tracking-tight">
+          <span className="text-2xl">🛠️</span>
+          <span className="font-extrabold text-xl tracking-tight">
             <span className="text-primary">Fachowiec</span>
             <span className="text-accent">.app</span>
           </span>
@@ -121,12 +120,12 @@ export default function Navbar() {
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
           <NavLink to="/szukaj" className={navLinkClass}>
-            <Search size={18} />
+            🔍 Szukaj
           </NavLink>
 
           <NavLink to="/zapisani" className={navLinkClass}>
             <span className="flex items-center gap-1.5">
-              Ulubieni
+              ⭐ Ulubieni
               {saved.length > 0 && (
                 <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-amber-500 text-white rounded-full leading-none">
                   {saved.length}
@@ -189,7 +188,7 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        Ulubieni
+                        <span>⭐</span> Ulubieni
                         {saved.length > 0 && (
                           <span className="ml-auto text-xs font-bold text-amber-500">{saved.length}</span>
                         )}
@@ -240,11 +239,11 @@ export default function Navbar() {
           <NavLink
             to="/szukaj"
             className={({ isActive }) =>
-              `btn-outline text-sm text-center flex justify-center ${isActive ? 'bg-primary text-white' : ''}`
+              `btn-outline text-sm text-center ${isActive ? 'bg-primary text-white' : ''}`
             }
             onClick={() => setMenuOpen(false)}
           >
-            <Search size={18} />
+            🔍 Szukaj fachowca
           </NavLink>
           <NavLink
             to="/zapisani"
@@ -253,7 +252,7 @@ export default function Navbar() {
             }
             onClick={() => setMenuOpen(false)}
           >
-            Ulubieni
+            ⭐ Ulubieni
             {saved.length > 0 && (
               <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-amber-500 text-white rounded-full">
                 {saved.length}

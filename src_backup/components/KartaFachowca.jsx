@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useSaved } from '../context/SavedContext'
-import { Star } from 'lucide-react'
 
 function Stars({ rating }) {
   const full = Math.floor(rating)
@@ -74,15 +73,16 @@ export default function KartaFachowca({ fachowiec }) {
           onClick={() => toggleSave(fachowiec)}
           title={saved ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
           className={`
-            p-2 rounded-xl border-2 transition-all duration-200 active:scale-95
+            flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl border-2 transition-all duration-200 active:scale-95
             ${saved
-              ? 'bg-amber-50 border-amber-300 text-amber-500 hover:bg-amber-100'
+              ? 'bg-amber-50 border-amber-300 text-amber-600 hover:bg-amber-100'
               : 'bg-white border-gray-200 text-gray-400 hover:border-amber-300 hover:text-amber-500 hover:bg-amber-50'}
           `}
         >
-          <div className={`transition-transform duration-200 ${saved ? 'scale-110' : 'group-hover:scale-110'}`}>
-            <Star size={20} fill={saved ? 'currentColor' : 'none'} strokeWidth={2} />
-          </div>
+          <span className={`text-base transition-transform duration-200 ${saved ? 'scale-110' : 'group-hover:scale-110'}`}>
+            {saved ? '⭐' : '☆'}
+          </span>
+          <span className="hidden sm:inline">{saved ? 'Ulubiony' : 'Ulubieni'}</span>
         </button>
 
         <Link
