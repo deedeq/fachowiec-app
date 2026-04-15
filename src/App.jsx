@@ -11,6 +11,7 @@ import Zapisani from './pages/Zapisani'
 import KategoriaPage from './pages/KategoriaPage'
 import PanelFachowca from './pages/PanelFachowca'
 import Wiadomosci from './pages/Wiadomosci'
+import AdminPanel from './pages/AdminPanel'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/zapisani"           element={<Zapisani />} />
                 <Route path="/panel"             element={<PanelFachowca />} />
                 <Route path="/wiadomosci"        element={<Wiadomosci />} />
+                <Route path="/admin"             element={<AdminPanel />} />
                 <Route path="*"                   element={<NotFound />} />
               </Routes>
             </main>

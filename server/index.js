@@ -6,6 +6,7 @@ import fachowcyRouter from './routes/fachowcy.js'
 import authRouter from './routes/auth.js'
 import opinieRouter from './routes/opinie.js'
 import zapisaniRouter from './routes/zapisani.js'
+import adminRouter from './routes/admin.js'
 
 dotenv.config()
 
@@ -24,6 +25,7 @@ app.use('/api/fachowcy',  fachowcyRouter)
 app.use('/api/auth',      authRouter)
 app.use('/api/opinie',    opinieRouter)
 app.use('/api/zapisani',  zapisaniRouter)
+app.use('/api/admin',     adminRouter)
 
 // ── Health check ──────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {

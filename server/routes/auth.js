@@ -31,7 +31,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { email, haslo, imie, nazwisko } = req.body
+    const { email, haslo, imie, nazwisko, telefon, kategoria, dodatkowe, wojewodztwo, miasto, typPrac, opis, doswiadczenie } = req.body
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -45,9 +45,36 @@ router.post(
       }
 
       const user = data.user
-      const token = signToken({ id: user.id, email: user.email, imie, nazwisko })
+      
+      // Parse experience years
+      let doswLat = parseInt(doswiadczenie)
+      if (isNaN(doswLat)) doswLat = 0
+      
+      // Insert into profiles
+      const { error: profileError } = await supabase.from('profiles').insert([{
+        user_id: user.id,
+        imie,
+        nazwisko,
+        email,
+        telefon,
+        specjalizacja: kategoria || 'Fachowiec',
+        wojewodztwo: wojewodztwo || '',
+        miasto: miasto || '',
+        typ: typPrac || 'oba',
+        opis: opis || '',
+        uslugi: dodatkowe || [],
+        doswiadczenie_lat: doswLat,
+        status: 'pending',
+        role: 'user'
+      }])
+      
+      if (profileError) {
+          console.error("Profile insert error:", profileError)
+      }
 
-      res.status(201).json({ token, user: { id: user.id, email: user.email, imie, nazwisko } })
+      const token = signToken({ id: user.id, email: user.email, imie, nazwisko, role: 'user' })
+
+      res.status(201).json({ token, user: { id: user.id, email: user.email, imie, nazwisko, role: 'user' } })
     } catch (err) {
       console.error('POST /auth/rejestracja error:', err)
       res.status(500).json({ error: 'Błąd serwera' })
@@ -79,6 +106,10 @@ router.post(
         return res.status(401).json({ error: 'Nieprawidłowy email lub hasło' })
       }
 
+      // Fetch profile to get Role
+      const { data: profilData } = await supabase.from('profiles').select('role').eq('user_id', data.user.id).single()
+      const rola = profilData ? profilData.role : 'user'
+
       const user = data.user
       const meta = user.user_metadata || {}
       const token = signToken({
@@ -86,11 +117,12 @@ router.post(
         email: user.email,
         imie: meta.imie || '',
         nazwisko: meta.nazwisko || '',
+        role: rola
       })
 
       res.json({
         token,
-        user: { id: user.id, email: user.email, imie: meta.imie, nazwisko: meta.nazwisko },
+        user: { id: user.id, email: user.email, imie: meta.imie, nazwisko: meta.nazwisko, role: rola },
       })
     } catch (err) {
       console.error('POST /auth/logowanie error:', err)
@@ -104,7 +136,7 @@ router.post(
 // ----------------------------------------------------------------
 router.get('/profil', authMiddleware, async (req, res) => {
   try {
-    const { id, email, imie, nazwisko } = req.user
+    const { id, email, imie, nazwisko, role } = req.user
 
     // Fetch profile if fachowiec
     const { data: profil } = await supabase
@@ -113,7 +145,9 @@ router.get('/profil', authMiddleware, async (req, res) => {
       .eq('user_id', id)
       .maybeSingle()
 
-    res.json({ id, email, imie, nazwisko, profil: profil || null })
+    const currentRole = profil ? profil.role : (role || 'user')
+
+    res.json({ id, email, imie, nazwisko, role: currentRole, profil: profil || null })
   } catch (err) {
     console.error('GET /auth/profil error:', err)
     res.status(500).json({ error: 'Błąd serwera' })

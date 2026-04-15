@@ -3,8 +3,8 @@ import { apiClient } from './client'
 /**
  * POST /api/auth/rejestracja
  */
-export async function rejestracja({ email, haslo, imie, nazwisko, rola }) {
-  const { data } = await apiClient.post('/auth/rejestracja', { email, haslo, imie, nazwisko, rola })
+export async function rejestracja(userData) {
+  const { data } = await apiClient.post('/auth/rejestracja', userData)
   return data
 }
 

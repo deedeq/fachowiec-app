@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   doswiadczenie_lat INTEGER,
   uslugi           TEXT[],
   avatar_url       TEXT,
+  role             TEXT CHECK (role IN ('user', 'admin')) DEFAULT 'user',
+  status           TEXT CHECK (status IN ('pending', 'approved', 'rejected')) DEFAULT 'pending',
   created_at       TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
 
@@ -74,13 +76,19 @@ CREATE POLICY "profiles_insert_own"
   ON profiles FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "profiles_update_own"
+CREATE POLICY "profiles_update_own_or_admin"
   ON profiles FOR UPDATE
-  USING (auth.uid() = user_id);
+  USING (
+    auth.uid() = user_id 
+    OR (SELECT role FROM profiles WHERE user_id = auth.uid()) = 'admin'
+  );
 
-CREATE POLICY "profiles_delete_own"
+CREATE POLICY "profiles_delete_own_or_admin"
   ON profiles FOR DELETE
-  USING (auth.uid() = user_id);
+  USING (
+    auth.uid() = user_id 
+    OR (SELECT role FROM profiles WHERE user_id = auth.uid()) = 'admin'
+  );
 
 -- opinie
 ALTER TABLE opinie ENABLE ROW LEVEL SECURITY;
@@ -117,8 +125,8 @@ CREATE POLICY "zapisani_delete_own"
 -- Dla uproszczenia user_id = NULL (seed data bez kont auth)
 -- ============================================================
 
-INSERT INTO profiles (imie, nazwisko, specjalizacja, miasto, wojewodztwo, opis, cena_od, typ, zweryfikowany, doswiadczenie_lat, uslugi) VALUES
-('Marek',     'Kowalski',   'Elektryk',           'Warszawa',  'Mazowieckie',       'Certyfikowany elektryk z ponad 15-letnim doświadczeniem. Specjalizuję się w instalacjach elektrycznych nowych budynków, modernizacji starych instalacji oraz instalacjach inteligentnych systemów zarządzania budynkiem.',  120, 'oba',       true,  15, ARRAY['Instalacje elektryczne','Pomiary elektryczne','Wymiana rozdzielnic','Montaż oświetlenia LED','Inteligentny dom','Alarmy i monitoring']),
+INSERT INTO profiles (imie, nazwisko, specjalizacja, miasto, wojewodztwo, opis, cena_od, typ, zweryfikowany, doswiadczenie_lat, uslugi, role, status) VALUES
+('Marek',     'Kowalski',   'Elektryk',           'Warszawa',  'Mazowieckie',       'Certyfikowany elektryk z ponad 15-letnim doświadczeniem. Specjalizuję się w instalacjach elektrycznych nowych budynków, modernizacji starych instalacji oraz instalacjach inteligentnych systemów zarządzania budynkiem.',  120, 'oba',       true,  15, ARRAY['Instalacje elektryczne','Pomiary elektryczne','Wymiana rozdzielnic','Montaż oświetlenia LED','Inteligentny dom','Alarmy i monitoring'], 'user', 'approved'),
 ('Krzysztof', 'Nowak',      'Hydraulik',          'Kraków',    'Małopolskie',       'Hydraulik z 12-letnim stażem. Zajmuję się kompleksowymi instalacjami wod-kan, CO, montażem armatury łazienkowej i kuchennej.',  100, 'wnetrze',   true,  12, ARRAY['Instalacje wod-kan','Instalacje CO','Montaż armatury','Usuwanie awarii','Instalacja ogrzewania podłogowego']),
 ('Zbigniew',  'Wiśniewski', 'Murarz',             'Katowice',  'Śląskie',           'Doświadczony murarz z 20-letnim stażem w branży budowlanej. Realizuję projekty od fundamentów aż po dach.',  80, 'oba',        true,  20, ARRAY['Murowanie ścian','Fundamenty','Stropy','Kominy','Przebudowy i rozbudowy','Wyburzenia kontrolowane']),
 ('Andrzej',   'Dąbrowski',  'Tynkarz',            'Poznań',    'Wielkopolskie',     'Specjalizuję się w tynkach gipsowych i cementowo-wapiennych. Wykonuję tynki maszynowe gwarantujące idealnie gładkie powierzchnie.',  70, 'wnetrze',   false, 10, ARRAY['Tynki gipsowe maszynowe','Tynki cementowo-wapienne','Gładzie gipsowe','Szpachlowanie','Malowanie']),

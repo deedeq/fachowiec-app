@@ -145,6 +145,12 @@ export default function Navbar() {
                 📊 Panel
               </NavLink>
 
+              {user?.role === 'admin' && (
+                <NavLink to="/admin" className={navLinkClass}>
+                  <span className="font-bold text-red-600">⚙️ Admin</span>
+                </NavLink>
+              )}
+
               {/* Avatar + dropdown */}
               <div className="relative" ref={dropdownRef}>
                 <button
@@ -184,6 +190,15 @@ export default function Navbar() {
                         <span>💬</span> Wiadomości
                         <span className="ml-auto text-xs font-bold text-primary">3</span>
                       </Link>
+                      {user?.role === 'admin' && (
+                        <Link
+                          to="/admin"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <span>⚙️</span> Panel Admina
+                        </Link>
+                      )}
                       <Link
                         to="/zapisani"
                         onClick={() => setDropdownOpen(false)}

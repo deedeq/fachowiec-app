@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Stepper from '../components/Stepper'
 import { kategorie, wojewodztwa } from '../data/fachowcy'
+import { useAuth } from '../context/AuthContext'
 
 const STEPS = ['Dane osobowe', 'Lokalizacja i usługi', 'Profil']
 
@@ -265,6 +266,7 @@ function validateStep3(data) {
 
 // ─── Main Rejestracja page ─────────────────────────────
 export default function Rejestracja() {
+  const { register } = useAuth()
   const [step, setStep] = useState(0)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState({})
@@ -295,7 +297,12 @@ export default function Rejestracja() {
     }
 
     if (step === 2) {
-      setDone(true)
+      try {
+        await register(formData)
+        setDone(true)
+      } catch (err) {
+        setErrors({ general: err.message || 'Wystąpił błąd podczas rejestracji, spróbuj ponownie.' })
+      }
     } else {
       setStep(s => s + 1)
       setErrors({})
@@ -332,6 +339,12 @@ export default function Rejestracja() {
               {step === 0 && <Krok1 data={formData} onChange={updateField} errors={errors} />}
               {step === 1 && <Krok2 data={formData} onChange={updateField} errors={errors} />}
               {step === 2 && <Krok3 data={formData} onChange={updateField} errors={errors} />}
+
+              {errors.general && (
+                <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
+                  {errors.general}
+                </div>
+              )}
 
               {/* Navigation buttons */}
               <div className="flex justify-between mt-8 gap-3">
