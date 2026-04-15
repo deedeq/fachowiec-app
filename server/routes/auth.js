@@ -70,6 +70,7 @@ router.post(
       
       if (profileError) {
           console.error("Profile insert error:", profileError)
+          return res.status(500).json({ error: 'Błąd podczas tworzenia profilu fachowca. Skontaktuj się z administratorem.' })
       }
 
       const token = signToken({ id: user.id, email: user.email, imie, nazwisko, role: 'user' })

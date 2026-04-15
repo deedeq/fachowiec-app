@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
       setUser(res.user)
       return res
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || 'Błąd rejestracji'
+      const msg = err.response?.data?.error || err.response?.data?.errors?.[0]?.msg || err.message || 'Błąd rejestracji'
       setError(msg)
       throw new Error(msg)
     } finally {
