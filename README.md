@@ -1,9 +1,12 @@
 # 🛠️ Fachowiec.app
 
 ![React](https://img.shields.io/badge/React-18-blue)
+![Node.js](https://img.shields.io/badge/Node.js-20-green)
+![Express](https://img.shields.io/badge/Express-4-lightgrey)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-emerald)
 ![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3-teal)
 ![Vite](https://img.shields.io/badge/Vite-5-purple)
-![Status](https://img.shields.io/badge/status-prototype-orange)
+![Status](https://img.shields.io/badge/status-beta-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 > **Fachowiec.app** to nowoczesny marketplace dla fachowców budowlanych — platforma łącząca specjalistów z branży budowlanej z klientami szukającymi pomocy przy pracach remontowych i budowlanych.
@@ -12,22 +15,27 @@
 
 ## 📋 Opis projektu
 
-Aplikacja jest prototypem serwisu wzorowanego na Oferteo/OLX, skierowanego do rynku usług budowlanych w Polsce. Umożliwia:
+Aplikacja wzorowana na Oferteo/OLX, skierowana na rynek usług budowlanych w Polsce. Umożliwia:
 
-- **Klientom** — wyszukiwanie i filtrowanie fachowców według lokalizacji (mapa województw), specjalizacji, ceny i statusu weryfikacji
-- **Fachowcom** — rejestrację profilu w intuicyjnym kreatorze 3-krokowym
-- Przeglądanie pełnych profili z opisem, zakresem usług, galerią realizacji i opiniami klientów
+- **Klientom** — wyszukiwanie, filtrowanie i zapisywanie fachowców
+- **Fachowcom** — rejestrację profilu z pełną walidacją przez API
+- Logowanie i rejestrację przez **Supabase Auth** + własny JWT
+- Persystencję zapisanych fachowców w **localStorage** oraz **PostgreSQL**
 
 ---
 
 ## 🧰 Tech Stack
 
-| Technologia | Wersja | Przeznaczenie |
-|---|---|---|
-| React | 18 | Framework UI |
-| React Router DOM | 6 | Routing SPA |
-| Tailwind CSS | 3 | Stylowanie |
-| Vite | 5 | Bundler / Dev server |
+| Warstwa | Technologia |
+|---|---|
+| Frontend | React 18 + Vite 5 + Tailwind CSS 3 |
+| Routing | React Router DOM 6 |
+| HTTP Client | Axios |
+| Backend | Node.js 20 + Express 4 |
+| Baza danych | Supabase (PostgreSQL) |
+| Auth | Supabase Auth + JWT (jsonwebtoken) |
+| Walidacja | express-validator |
+| Deployment | Vercel (frontend) |
 
 ---
 
@@ -35,82 +43,138 @@ Aplikacja jest prototypem serwisu wzorowanego na Oferteo/OLX, skierowanego do ry
 
 ```
 fachowiec-app/
-├── public/
 ├── src/
+│   ├── api/
+│   │   ├── client.js          # Axios instance z JWT interceptorem
+│   │   ├── fachowcy.js        # Funkcje API fachowcy
+│   │   ├── auth.js            # Funkcje API auth
+│   │   └── zapisani.js        # Funkcje API zapisani
 │   ├── components/
-│   │   ├── Filtry.jsx        # Panel filtrów wyszukiwania
-│   │   ├── KartaFachowca.jsx # Karta fachowca w liście wyników
-│   │   ├── MapaPolski.jsx    # Interaktywna mapa SVG Polski
-│   │   ├── Navbar.jsx        # Nawigacja (desktop + mobile hamburger)
-│   │   └── Stepper.jsx       # Wskaźnik kroków rejestracji
+│   │   ├── Filtry.jsx
+│   │   ├── KartaFachowca.jsx  # Karta z przyciskiem ❤️ Zapisz
+│   │   ├── MapaPolski.jsx
+│   │   ├── Navbar.jsx         # Auth-aware navbar + dropdown
+│   │   └── Stepper.jsx
+│   ├── context/
+│   │   ├── AuthContext.jsx    # user, token, login/logout/register
+│   │   └── SavedContext.jsx   # localStorage + Toast notifications
 │   ├── data/
-│   │   └── fachowcy.js       # 15 realistycznych profili mockowych
+│   │   └── fachowcy.js        # Dane mockowe (fallback)
 │   ├── pages/
-│   │   ├── LandingPage.jsx   # Strona główna (/)
-│   │   ├── Szukaj.jsx        # Wyszukiwarka (/szukaj)
-│   │   ├── ProfilFachowca.jsx # Profil fachowca (/fachowiec/:id)
-│   │   ├── Rejestracja.jsx   # Rejestracja (/rejestracja)
-│   │   └── NotFound.jsx      # Strona 404
-│   ├── App.jsx               # Routing główny
-│   ├── index.css             # Style globalne + Tailwind
-│   └── main.jsx              # Punkt wejścia React
-├── index.html
+│   │   ├── LandingPage.jsx
+│   │   ├── Szukaj.jsx         # Sortowanie: ocena / cena / opinie
+│   │   ├── KategoriaPage.jsx  # /kategoria/:nazwa
+│   │   ├── ProfilFachowca.jsx
+│   │   ├── Logowanie.jsx      # Strona logowania
+│   │   ├── Rejestracja.jsx
+│   │   ├── Zapisani.jsx       # /zapisani (localStorage)
+│   │   └── NotFound.jsx
+│   ├── App.jsx
+│   ├── index.css
+│   └── main.jsx
+├── server/
+│   ├── index.js               # Express app
+│   ├── .env                   # ⚠️ Nie commitować!
+│   ├── routes/
+│   │   ├── fachowcy.js        # GET/POST/PUT /api/fachowcy
+│   │   ├── auth.js            # POST /api/auth/...
+│   │   ├── opinie.js          # GET/POST/DELETE /api/opinie
+│   │   └── zapisani.js        # GET/POST/DELETE /api/zapisani
+│   ├── middleware/
+│   │   └── authMiddleware.js  # JWT Bearer token
+│   ├── supabase/
+│   │   ├── client.js          # Supabase JS klient
+│   │   └── schema.sql         # DDL + RLS + seed data
+│   └── package.json
+├── vercel.json                # SPA rewrite dla Vercel
 ├── package.json
-├── tailwind.config.js
-├── postcss.config.cjs
 └── vite.config.js
 ```
 
 ---
 
-## 🚀 Instrukcja uruchomienia
+## 🚀 Uruchomienie lokalne
 
 ### Wymagania
 - Node.js >= 18
 - npm >= 9
+- Konto Supabase (darmowe)
 
-### Instalacja i uruchomienie
+### 1. Frontend
 
 ```bash
-# Klonowanie repozytorium
-git clone https://github.com/deedeq/fachowiec-app.git
-cd fachowiec-app
-
-# Instalacja zależności
 npm install
-
-# Uruchomienie serwera deweloperskiego
 npm run dev
+# → http://localhost:5173
 ```
 
-Aplikacja będzie dostępna pod adresem: **http://localhost:5173**
-
-### Budowanie produkcyjne
+### 2. Backend
 
 ```bash
-npm run build
-npm run preview
+cd server
+npm install
+npm run dev
+# → http://localhost:3001
+```
+
+### 3. Baza danych Supabase
+
+W panelu Supabase → SQL Editor wykonaj skrypt:
+
+```
+server/supabase/schema.sql
 ```
 
 ---
 
-## 🌐 Wdrożenie na GitHub
+## 🔑 Zmienne środowiskowe
 
-```bash
-git init
-git add .
-git commit -m "init: Fachowiec.app prototype"
-git branch -M main
-git remote add origin https://github.com/deedeq/fachowiec-app.git
-git push -u origin main
+### Backend (`server/.env`)
+
+Utwórz plik `server/.env` (nigdy nie commituj!):
+
+```env
+SUPABASE_URL=https://<twoje-id>.supabase.co
+SUPABASE_ANON_KEY=<twoj-anon-key>
+JWT_SECRET=<losowy-string-min-32-znaki>
+PORT=3001
 ```
 
-### Deployment na Vercel (zalecany)
+### Frontend (opcjonalnie `.env` w korzeniu)
 
-```bash
-npm install -g vercel
-vercel
+```env
+VITE_API_URL=http://localhost:3001/api
 ```
+
+### Vercel Dashboard
+
+W panelu Vercel → Settings → Environment Variables dodaj:
+
+| Nazwa | Wartość |
+|---|---|
+| `VITE_API_URL` | URL backendu (np. Railway / Render) |
+
+---
+
+## 🌐 API Endpoints
+
+| Metoda | Ścieżka | Opis | Auth |
+|---|---|---|---|
+| GET | `/api/fachowcy` | Lista z filtrowaniem i paginacją | ❌ |
+| GET | `/api/fachowcy/:id` | Pełny profil + opinie | ❌ |
+| GET | `/api/fachowcy/kategorie` | Lista kategorii z liczbami | ❌ |
+| POST | `/api/fachowcy` | Utwórz profil | ✅ JWT |
+| PUT | `/api/fachowcy/:id` | Edytuj profil (tylko właściciel) | ✅ JWT |
+| POST | `/api/auth/rejestracja` | Rejestracja | ❌ |
+| POST | `/api/auth/logowanie` | Logowanie → token JWT | ❌ |
+| GET | `/api/auth/profil` | Dane zalogowanego użytkownika | ✅ JWT |
+| POST | `/api/auth/wylogowanie` | Wylogowanie | ✅ JWT |
+| GET | `/api/opinie/:fachowiec_id` | Opinie dla fachowca | ❌ |
+| POST | `/api/opinie` | Dodaj opinię | ✅ JWT |
+| DELETE | `/api/opinie/:id` | Usuń swoją opinię | ✅ JWT |
+| GET | `/api/zapisani` | Lista zapisanych | ✅ JWT |
+| POST | `/api/zapisani` | Dodaj do ulubionych | ✅ JWT |
+| DELETE | `/api/zapisani/:fachowiec_id` | Usuń z ulubionych | ✅ JWT |
 
 ---
 
@@ -118,31 +182,35 @@ vercel
 
 ### ✅ Zrealizowane (v1 — prototype)
 - [x] Landing page z wyszukiwarką i kategoriami
-- [x] Wyszukiwarka z filtrami (województwo, specjalizacja, cena, weryfikacja)
+- [x] Wyszukiwarka z filtrami
 - [x] Interaktywna mapa SVG 16 województw
-- [x] 15 realistycznych profili mockowych fachowców
-- [x] Pełny widok profilu z galerią i opiniami
-- [x] Rejestracja w 3 krokach z walidacją formularzy
-- [x] Responsywny design (mobile first)
-- [x] Hamburger menu na urządzeniach mobilnych
-- [x] Strona 404
+- [x] 15 realistycznych profili mockowych
+- [x] Pełny widok profilu z opisem, usługami i opiniami
+- [x] Rejestracja 3-krokowa z walidacją
 
----
+### ✅ Zrealizowane (v2 — UX)
+- [x] Sortowanie wyników (ocena / cena / opinie)
+- [x] Strony kategorii `/kategoria/:nazwa`
+- [x] Przycisk ❤️ Zapisz na kartach fachowców
+- [x] Strona `/zapisani` (localStorage)
+- [x] Toast powiadomienia
+- [x] Aktywny stan Navbar (NavLink)
 
-## 🔮 Planowane funkcje v2
+### ✅ Zrealizowane (v3 — Backend)
+- [x] REST API Node.js + Express
+- [x] Supabase PostgreSQL + RLS
+- [x] Auth JWT (logowanie / rejestracja)
+- [x] Navbar auth-aware (avatar + dropdown)
+- [x] Strona `/logowanie`
+- [x] Axios client z interceptorami JWT
+- [x] Vercel SPA rewrite
 
-| Funkcja | Opis |
-|---|---|
-| 🔐 Backend Node.js + Express | REST API, obsługa baz danych |
-| 🔑 Autoryzacja JWT | Logowanie i rejestracja użytkowników, sesje |
-| 💳 Płatności online | Integracja z Stripe lub Przelewy24 |
-| 💬 Czat w czasie rzeczywistym | Komunikator między klientem a fachowcem (Socket.io) |
-| 📄 System ofertowania | Klient wystawia zlecenie, fachowcy składają oferty |
-| 🛡️ Panel administracyjny | Weryfikacja fachowców, zarządzanie treścią |
-| 📊 Dashboard fachowca | Statystyki wyświetleń, zapytań, ocen |
-| 🔔 Powiadomienia push | Nowe zlecenia, wiadomości, opinie |
-| 🌐 SEO + SSR | Next.js dla lepszego pozycjonowania |
-| 📱 Aplikacja mobilna | React Native / Expo |
+### 🔮 Planowane (v4+)
+- [ ] Płatności Stripe / Przelewy24
+- [ ] Czat Socket.io w czasie rzeczywistym
+- [ ] Panel fachowca z dashboard statystyk
+- [ ] Powiadomienia push
+- [ ] Next.js SSR dla SEO
 
 ---
 
@@ -160,4 +228,4 @@ MIT © 2025 Fachowiec.app
 
 ---
 
-> Zbudowano z ❤️ używając React + Tailwind CSS
+> Zbudowano z ❤️ używając React + Node.js + Supabase
