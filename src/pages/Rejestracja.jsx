@@ -285,7 +285,7 @@ export default function Rejestracja() {
     setErrors(prev => ({ ...prev, [key]: undefined }))
   }
 
-  const goNext = () => {
+  const goNext = async () => {
     let e = {}
     if (step === 0) e = validateStep1(formData)
     if (step === 1) e = validateStep2(formData)
