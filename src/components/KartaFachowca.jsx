@@ -71,18 +71,18 @@ export default function KartaFachowca({ fachowiec }) {
         {/* Save button */}
         <button
           onClick={() => toggleSave(fachowiec)}
-          title={saved ? 'Usuń z zapisanych' : 'Zapisz fachowca'}
+          title={saved ? 'Usuń z ulubionych' : 'Dodaj do ulubionych'}
           className={`
             flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl border-2 transition-all duration-200 active:scale-95
             ${saved
-              ? 'bg-rose-50 border-rose-300 text-rose-600 hover:bg-rose-100'
-              : 'bg-white border-gray-200 text-gray-400 hover:border-rose-300 hover:text-rose-500 hover:bg-rose-50'}
+              ? 'bg-amber-50 border-amber-300 text-amber-600 hover:bg-amber-100'
+              : 'bg-white border-gray-200 text-gray-400 hover:border-amber-300 hover:text-amber-500 hover:bg-amber-50'}
           `}
         >
           <span className={`text-base transition-transform duration-200 ${saved ? 'scale-110' : 'group-hover:scale-110'}`}>
-            {saved ? '❤️' : '🤍'}
+            {saved ? '⭐' : '☆'}
           </span>
-          <span className="hidden sm:inline">{saved ? 'Zapisano' : 'Zapisz'}</span>
+          <span className="hidden sm:inline">{saved ? 'Ulubiony' : 'Ulubieni'}</span>
         </button>
 
         <Link

@@ -125,9 +125,9 @@ export default function Navbar() {
 
           <NavLink to="/zapisani" className={navLinkClass}>
             <span className="flex items-center gap-1.5">
-              ❤️ Zapisani
+              ⭐ Ulubieni
               {saved.length > 0 && (
-                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-rose-500 text-white rounded-full leading-none">
+                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-amber-500 text-white rounded-full leading-none">
                   {saved.length}
                 </span>
               )}
@@ -188,9 +188,9 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        <span>❤️</span> Zapisani
+                        <span>⭐</span> Ulubieni
                         {saved.length > 0 && (
-                          <span className="ml-auto text-xs font-bold text-rose-500">{saved.length}</span>
+                          <span className="ml-auto text-xs font-bold text-amber-500">{saved.length}</span>
                         )}
                       </Link>
                       <div className="border-t border-gray-100 mt-1 pt-1">
@@ -252,9 +252,9 @@ export default function Navbar() {
             }
             onClick={() => setMenuOpen(false)}
           >
-            ❤️ Zapisani
+            ⭐ Ulubieni
             {saved.length > 0 && (
-              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-rose-500 text-white rounded-full">
+              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-bold bg-amber-500 text-white rounded-full">
                 {saved.length}
               </span>
             )}

@@ -19,9 +19,9 @@ const KATEGORIE_ICONS = {
 }
 
 const STATS = [
-  { value: '1 200+', label: 'fachowców', icon: '👷' },
+  { value: '120+', label: 'fachowców', icon: '👷' },
   { value: '16', label: 'województw', icon: '🗺️' },
-  { value: '4 800+', label: 'zleceń', icon: '📋' },
+  { value: '480+', label: 'zleceń', icon: '📋' },
 ]
 
 const POPULAR_KATEGORIE = ['Elektryk', 'Hydraulik', 'Murarz', 'Tynkarz', 'Dekarz', 'Malarz', 'Glazurnik', 'Stolarz']
@@ -220,7 +220,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto card p-10 text-center"
           style={{ background: 'linear-gradient(135deg, #1a73e8, #0d47a1)' }}>
           <h2 className="text-3xl font-extrabold text-white mb-4">Jesteś fachowcem?</h2>
-          <p className="text-blue-200 mb-8 text-lg">Dołącz do ponad 1200 specjalistów i zdobywaj zlecenia online</p>
+          <p className="text-blue-200 mb-8 text-lg">Dołącz do ponad 120 specjalistów i zdobywaj zlecenia online</p>
           <button
             onClick={() => navigate('/rejestracja')}
             className="bg-accent text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-orange-600 transition-all duration-200 hover:shadow-lg active:scale-95"
