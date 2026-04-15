@@ -9,6 +9,8 @@ import Rejestracja from './pages/Rejestracja'
 import Logowanie from './pages/Logowanie'
 import Zapisani from './pages/Zapisani'
 import KategoriaPage from './pages/KategoriaPage'
+import PanelFachowca from './pages/PanelFachowca'
+import Wiadomosci from './pages/Wiadomosci'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -27,6 +29,8 @@ export default function App() {
                 <Route path="/rejestracja"        element={<Rejestracja />} />
                 <Route path="/logowanie"          element={<Logowanie />} />
                 <Route path="/zapisani"           element={<Zapisani />} />
+                <Route path="/panel"             element={<PanelFachowca />} />
+                <Route path="/wiadomosci"        element={<Wiadomosci />} />
                 <Route path="*"                   element={<NotFound />} />
               </Routes>
             </main>
