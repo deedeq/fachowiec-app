@@ -131,5 +131,6 @@ export default function Logowanie() {
         )}
       </div>
     </div>
-  )
+  </div>
+)
 }
