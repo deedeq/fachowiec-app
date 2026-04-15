@@ -12,13 +12,19 @@ export default function Logowanie() {
   const [haslo, setHaslo] = useState('')
   const [error, setError] = useState(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeName, setWelcomeName] = useState('')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     try {
-      await login(email, haslo)
-      navigate(from, { replace: true })
+      const res = await login(email, haslo)
+      setWelcomeName(res.user.imie)
+      setShowWelcome(true)
+      setTimeout(() => {
+        navigate(from, { replace: true })
+      }, 1500)
     } catch (err) {
       setError(err.message)
     }
@@ -103,13 +109,26 @@ export default function Logowanie() {
             </button>
           </form>
 
+        {/* Login link */}
+        {!showWelcome && (
           <div className="mt-6 pt-6 border-t border-gray-100 text-center text-sm text-gray-500">
             Nie masz konta?{' '}
             <Link to="/rejestracja" className="text-primary font-semibold hover:underline">
               Zarejestruj się
             </Link>
           </div>
-        </div>
+        )}
+
+        {/* Welcome Overlay */}
+        {showWelcome && (
+          <div className="fixed inset-0 bg-white/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-fadeIn">
+            <div className="text-center animate-bounceIn">
+              <div className="text-6xl mb-4">👋</div>
+              <h2 className="text-4xl font-extrabold text-gray-900 mb-2">Witaj, {welcomeName}!</h2>
+              <p className="text-gray-500 text-lg">Zaraz zostaniesz przekierowany...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

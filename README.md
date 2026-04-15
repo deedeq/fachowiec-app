@@ -213,15 +213,12 @@ W panelu Vercel → Settings → Environment Variables dodaj:
 - [x] Modal "Poproś o wycenę" na profilu fachowca
 - [x] Dodawanie opinii z poziomu profilu (zalogowani)
 - [x] Status dostępności fachowca (🟢 Dostępny)
-- [x] Badge bezpiecznej transakcji (Stripe)
 - [x] Aktywne przyciski kontaktowe dla zalogowanych
 
 ### 🔮 Planowane (v5+)
-- [ ] Płatności Stripe / Przelewy24
 - [ ] Czat Socket.io w czasie rzeczywistym
 - [ ] Powiadomienia push (WebSockets)
 - [ ] Next.js SSR dla SEO
-- [ ] Mapa fachowców na żywo (GPS)
 
 
 ---

@@ -324,18 +324,6 @@ export default function ProfilFachowca() {
             </ul>
           </div>
 
-          {/* Safety badge */}
-          <div className="card p-4 bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-100">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">🛡️</span>
-              <div>
-                <p className="font-bold text-emerald-800 text-sm">Bezpieczna transakcja</p>
-                <p className="text-xs text-emerald-600 mt-0.5 leading-relaxed">
-                  Wszystkie transakcje są chronione przez Fachowiec.app. Płatności przez Stripe.
-                </p>
-              </div>
-            </div>
-          </div>
         </aside>
       </div>
     </div>
