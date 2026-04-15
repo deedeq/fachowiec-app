@@ -205,12 +205,24 @@ W panelu Vercel → Settings → Environment Variables dodaj:
 - [x] Axios client z interceptorami JWT
 - [x] Vercel SPA rewrite
 
-### 🔮 Planowane (v4+)
+### ✅ Zrealizowane (v4 — Dashboard & UX+)
+- [x] Panel fachowca z dashboard statystyk (przychody, wyświetlenia, zapytania, ocena)
+- [x] Wykres przychodów (ostatnie 6 miesięcy)
+- [x] System wiadomości – lista konwersacji + czat z klientami
+- [x] Dzwonek powiadomień w Navbar (🔔 badge z licznikiem)
+- [x] Modal "Poproś o wycenę" na profilu fachowca
+- [x] Dodawanie opinii z poziomu profilu (zalogowani)
+- [x] Status dostępności fachowca (🟢 Dostępny)
+- [x] Badge bezpiecznej transakcji (Stripe)
+- [x] Aktywne przyciski kontaktowe dla zalogowanych
+
+### 🔮 Planowane (v5+)
 - [ ] Płatności Stripe / Przelewy24
 - [ ] Czat Socket.io w czasie rzeczywistym
-- [ ] Panel fachowca z dashboard statystyk
-- [ ] Powiadomienia push
+- [ ] Powiadomienia push (WebSockets)
 - [ ] Next.js SSR dla SEO
+- [ ] Mapa fachowców na żywo (GPS)
+
 
 ---
 
