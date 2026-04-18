@@ -15,15 +15,16 @@ function signToken(payload) {
 }
 
 // ----------------------------------------------------------------
-// POST /api/auth/rejestracja
+// POST /api/auth/rejestracja-krok1
 // ----------------------------------------------------------------
 router.post(
-  '/rejestracja',
+  '/rejestracja-krok1',
   [
     body('email').isEmail().withMessage('Nieprawidłowy email'),
     body('haslo').isLength({ min: 6 }).withMessage('Hasło musi mieć co najmniej 6 znaków'),
     body('imie').notEmpty().withMessage('Imię jest wymagane'),
     body('nazwisko').notEmpty().withMessage('Nazwisko jest wymagane'),
+    body('isFachowiec').isBoolean()
   ],
   async (req, res) => {
     const errors = validationResult(req)
@@ -31,7 +32,7 @@ router.post(
       return res.status(400).json({ errors: errors.array() })
     }
 
-    const { email, haslo, imie, nazwisko, telefon, kategoria, dodatkowe, wojewodztwo, miasto, typPrac, opis, doswiadczenie } = req.body
+    const { email, haslo, imie, nazwisko, telefon, isFachowiec } = req.body
 
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -45,39 +46,68 @@ router.post(
       }
 
       const user = data.user
+      const role = isFachowiec ? 'fachowiec' : 'klient'
+      const status = isFachowiec ? 'pending' : 'approved'
       
-      // Parse experience years
-      let doswLat = parseInt(doswiadczenie)
-      if (isNaN(doswLat)) doswLat = 0
-      
-      // Insert into profiles
       const { error: profileError } = await supabase.from('profiles').insert([{
         user_id: user.id,
         imie,
         nazwisko,
         email,
-        telefon,
-        specjalizacja: kategoria || 'Fachowiec',
-        wojewodztwo: wojewodztwo || '',
-        miasto: miasto || '',
-        typ: typPrac || 'oba',
-        opis: opis || '',
-        uslugi: dodatkowe || [],
-        doswiadczenie_lat: doswLat,
-        status: 'pending',
-        role: 'user'
+        telefon: telefon || '',
+        status,
+        role
       }])
       
       if (profileError) {
           console.error("Profile insert error:", profileError)
-          return res.status(500).json({ error: 'Błąd podczas tworzenia profilu fachowca. Skontaktuj się z administratorem.' })
+          return res.status(500).json({ error: 'Błąd podczas tworzenia profilu. Skontaktuj się z administratorem.' })
       }
 
-      const token = signToken({ id: user.id, email: user.email, imie, nazwisko, role: 'user' })
+      const token = signToken({ id: user.id, email: user.email, imie, nazwisko, role })
 
-      res.status(201).json({ token, user: { id: user.id, email: user.email, imie, nazwisko, role: 'user' } })
+      res.status(201).json({ token, user: { id: user.id, email: user.email, imie, nazwisko, role } })
     } catch (err) {
-      console.error('POST /auth/rejestracja error:', err)
+      console.error('POST /auth/rejestracja-krok1 error:', err)
+      res.status(500).json({ error: 'Błąd serwera' })
+    }
+  }
+)
+
+// ----------------------------------------------------------------
+// PUT /api/auth/uzupelnij-profil
+// ----------------------------------------------------------------
+router.put(
+  '/uzupelnij-profil',
+  authMiddleware,
+  async (req, res) => {
+    const { kategoria, dodatkowe, wojewodztwo, miasto, typPrac, opis, doswiadczenie } = req.body
+    
+    try {
+      let doswLat = parseInt(doswiadczenie)
+      if (isNaN(doswLat)) doswLat = 0
+      
+      const { data, error } = await supabase.from('profiles').update({
+        specjalizacja: kategoria,
+        uslugi: dodatkowe || [],
+        wojewodztwo,
+        miasto,
+        typ: typPrac,
+        opis,
+        doswiadczenie_lat: doswLat,
+        status: 'pending' // ponowna weryfikacja
+      })
+      .eq('user_id', req.user.id)
+      .select()
+      .single()
+
+      if (error) {
+        return res.status(400).json({ error: error.message })
+      }
+
+      res.json(data)
+    } catch (err) {
+      console.error('PUT /auth/uzupelnij-profil error:', err)
       res.status(500).json({ error: 'Błąd serwera' })
     }
   }

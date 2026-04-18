@@ -1,10 +1,18 @@
 import { apiClient } from './client'
 
 /**
- * POST /api/auth/rejestracja
+ * POST /api/auth/rejestracja-krok1
  */
-export async function rejestracja(userData) {
-  const { data } = await apiClient.post('/auth/rejestracja', userData)
+export async function rejestracjaKrok1(userData) {
+  const { data } = await apiClient.post('/auth/rejestracja-krok1', userData)
+  return data
+}
+
+/**
+ * PUT /api/auth/uzupelnij-profil
+ */
+export async function uzupelnijProfil(userData) {
+  const { data } = await apiClient.put('/auth/uzupelnij-profil', userData)
   return data
 }
 

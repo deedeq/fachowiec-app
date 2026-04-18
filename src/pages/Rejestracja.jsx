@@ -3,7 +3,8 @@ import Stepper from '../components/Stepper'
 import { kategorie, wojewodztwa } from '../data/fachowcy'
 import { useAuth } from '../context/AuthContext'
 
-const STEPS = ['Dane osobowe', 'Lokalizacja i usługi', 'Profil']
+const STEPS_FACHOWIEC = ['Dane osobowe', 'Lokalizacja i usługi', 'Profil']
+const STEPS_KLIENT = ['Dane osobowe']
 
 // ─── Step 1 ───────────────────────────────────────────
 function Krok1({ data, onChange, errors }) {
@@ -46,6 +47,18 @@ function Krok1({ data, onChange, errors }) {
         <input id="haslo2" type="password" className={`input-field ${errors.haslo2 ? 'border-red-400' : ''}`}
           value={data.haslo2} onChange={e => onChange('haslo2', e.target.value)} placeholder="Powtórz hasło" />
         {errors.haslo2 && <p className="text-red-500 text-xs mt-1">{errors.haslo2}</p>}
+      </div>
+      <div className="pt-2">
+        <label className="flex items-center gap-3 cursor-pointer p-4 border rounded-xl hover:bg-gray-50 transition-colors">
+          <input type="checkbox"
+            checked={data.isFachowiec}
+            onChange={e => onChange('isFachowiec', e.target.checked)}
+            className="w-5 h-5 accent-primary rounded" />
+          <div>
+            <div className="font-semibold text-gray-900">Chcę oferować swoje usługi</div>
+            <div className="text-sm text-gray-500">Zaznacz, jeśli chcesz założyć profil fachowca</div>
+          </div>
+        </label>
       </div>
     </div>
   )
@@ -223,7 +236,7 @@ function Sukces() {
       <div>
         <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Dziękujemy!</h2>
         <p className="text-gray-600 max-w-md mx-auto leading-relaxed">
-          Twój profil jest <strong>w trakcie weryfikacji</strong>. Skontaktujemy się z Tobą w ciągu <strong>24 godzin</strong>.
+          Twoje konto zostało utworzone pomyślnie.
         </p>
       </div>
       <div className="flex flex-col gap-3 w-full max-w-xs">
@@ -266,19 +279,21 @@ function validateStep3(data) {
 
 // ─── Main Rejestracja page ─────────────────────────────
 export default function Rejestracja() {
-  const { register } = useAuth()
+  const { registerKrok1, submitProfil } = useAuth()
   const [step, setStep] = useState(0)
   const [done, setDone] = useState(false)
   const [errors, setErrors] = useState({})
 
   const [formData, setFormData] = useState({
     // Step 1
-    imie: '', nazwisko: '', telefon: '', email: '', haslo: '', haslo2: '',
+    imie: '', nazwisko: '', telefon: '', email: '', haslo: '', haslo2: '', isFachowiec: false,
     // Step 2
     kategoria: '', dodatkowe: [], wojewodztwo: '', miasto: '', zasieg: 50, typPrac: 'oba',
     // Step 3
     opis: '', doswiadczenie: '', zdjecie: '',
   })
+
+  const currentSteps = formData.isFachowiec ? STEPS_FACHOWIEC : STEPS_KLIENT
 
   const updateField = (key, val) => {
     setFormData(prev => ({ ...prev, [key]: val }))
@@ -296,12 +311,24 @@ export default function Rejestracja() {
       return
     }
 
-    if (step === 2) {
+    if (step === 0) {
       try {
-        await register(formData)
-        setDone(true)
+        await registerKrok1(formData)
+        if (!formData.isFachowiec) {
+          setDone(true)
+        } else {
+          setStep(1)
+          setErrors({})
+        }
       } catch (err) {
         setErrors({ general: err.message || 'Wystąpił błąd podczas rejestracji, spróbuj ponownie.' })
+      }
+    } else if (step === 2) {
+      try {
+        await submitProfil(formData)
+        setDone(true)
+      } catch (err) {
+        setErrors({ general: err.message || 'Wystąpił błąd podczas uzupełniania profilu.' })
       }
     } else {
       setStep(s => s + 1)
@@ -319,9 +346,9 @@ export default function Rejestracja() {
       <div className="max-w-xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-4xl mb-3">🛠️</div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Zarejestruj się jako fachowiec</h1>
-          <p className="text-gray-500 text-sm mt-1">Dołącz do platformy i zdobywaj nowe zlecenia</p>
+          <div className="text-4xl mb-3">👤</div>
+          <h1 className="text-2xl font-extrabold text-gray-900">Zarejestruj się</h1>
+          <p className="text-gray-500 text-sm mt-1">Dołącz do platformy Fachowiec</p>
         </div>
 
         <div className="card p-6 sm:p-8">
@@ -329,11 +356,11 @@ export default function Rejestracja() {
             <Sukces />
           ) : (
             <>
-              <Stepper steps={STEPS} current={step} />
+              <Stepper steps={currentSteps} current={step} />
 
               <div className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-1">{STEPS[step]}</h2>
-                <p className="text-sm text-gray-500">Krok {step + 1} z {STEPS.length}</p>
+                <h2 className="text-lg font-bold text-gray-900 mb-1">{currentSteps[step]}</h2>
+                <p className="text-sm text-gray-500">Krok {step + 1} z {currentSteps.length}</p>
               </div>
 
               {step === 0 && <Krok1 data={formData} onChange={updateField} errors={errors} />}
@@ -356,7 +383,7 @@ export default function Rejestracja() {
                   <span />
                 )}
                 <button onClick={goNext} className="btn-primary px-8 ml-auto">
-                  {step === 2 ? '✅ Wyślij profil' : 'Dalej →'}
+                  {(step === currentSteps.length - 1) ? '✅ Zakończ rejestrację' : 'Dalej →'}
                 </button>
               </div>
             </>

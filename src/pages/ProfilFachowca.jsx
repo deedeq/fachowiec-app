@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { fachowcy } from '../data/fachowcy'
 import { Stars, Avatar } from '../components/KartaFachowca'
 import { useAuth } from '../context/AuthContext'
 import { useSaved } from '../context/SavedContext'
+import { apiClient } from '../api/client'
 
 function OpiniaCard({ opinia }) {
   return (
@@ -65,7 +65,7 @@ function OrderModal({ fachowiec, onClose }) {
             <label className="label">Rodzaj usługi *</label>
             <select className="input-field" value={form.usluga} onChange={e => setForm(f => ({ ...f, usluga: e.target.value }))} required>
               <option value="">Wybierz usługę...</option>
-              {fachowiec.uslugi.map((u, i) => <option key={i} value={u}>{u}</option>)}
+              {(fachowiec.uslugi || []).map((u, i) => <option key={i} value={u}>{u}</option>)}
             </select>
           </div>
           <div>
@@ -107,7 +107,26 @@ export default function ProfilFachowca() {
   const [showOrderModal, setShowOrderModal] = useState(false)
   const [addedReview, setAddedReview] = useState(false)
   const [newReview, setNewReview] = useState({ ocena: 5, tresc: '' })
-  const fachowiec = fachowcy.find((f) => f.id === Number(id))
+  const [fachowiec, setFachowiec] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchFachowiec() {
+      try {
+        const { data } = await apiClient.get(`/fachowcy/${id}`)
+        setFachowiec(data)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchFachowiec()
+  }, [id])
+
+  if (loading) {
+    return <div className="text-center py-20 text-gray-500">Ładowanie profilu...</div>
+  }
 
   if (!fachowiec) {
     return (
@@ -120,7 +139,10 @@ export default function ProfilFachowca() {
     )
   }
 
-  const { imie, nazwisko, specjalizacja, miasto, wojewodztwo, ocena, liczbaOpinii, cenaOd, zweryfikowany, opis, uslugi, opinie, typ } = fachowiec
+  const { imie, nazwisko, specjalizacja, miasto, wojewodztwo, srednia_ocena, liczba_opinii, cena_od, zweryfikowany, opis, uslugi, opinie, typ } = fachowiec
+  const ocena = srednia_ocena || 0
+  const liczbaOpinii = liczba_opinii || 0
+  const cenaOd = cena_od || 0
   const saved = isSaved(fachowiec.id)
   const typLabel = { wnetrze: 'Wnętrze', zewnetrze: 'Zewnętrze', oba: 'Wnętrze i zewnętrze' }
   const galleryColors = ['bg-slate-200', 'bg-stone-200', 'bg-zinc-200', 'bg-neutral-200', 'bg-gray-200', 'bg-slate-300']
@@ -182,7 +204,7 @@ export default function ProfilFachowca() {
           <div className="card p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><span>🔧</span> Zakres usług</h2>
             <div className="flex flex-wrap gap-2">
-              {uslugi.map((u, i) => (
+              {(uslugi || []).map((u, i) => (
                 <span key={i} className="bg-blue-50 text-primary border border-blue-200 px-3 py-1 rounded-full text-sm font-medium">{u}</span>
               ))}
             </div>
@@ -210,8 +232,10 @@ export default function ProfilFachowca() {
           <div className="card p-6">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2"><span>⭐</span> Opinie ({liczbaOpinii})</h2>
             <div className="flex flex-col gap-4">
-              {opinie.map((op, i) => <OpiniaCard key={i} opinia={op} />)}
-              <p className="text-xs text-gray-400 text-center">Wyświetlono 3 z {liczbaOpinii} opinii</p>
+              {(opinie || []).map((op, i) => <OpiniaCard key={i} opinia={op} />)}
+              {(opinie || []).length > 0 && (
+                <p className="text-xs text-gray-400 text-center">Wyświetlono {(opinie || []).length} z {liczbaOpinii} opinii</p>
+              )}
             </div>
 
             {isLoggedIn && !addedReview && (
@@ -315,12 +339,12 @@ export default function ProfilFachowca() {
           <div className="card p-5">
             <h3 className="font-bold text-gray-900 mb-3 text-sm">Główne usługi</h3>
             <ul className="space-y-1.5">
-              {uslugi.slice(0, 5).map((u, i) => (
+              {(uslugi || []).slice(0, 5).map((u, i) => (
                 <li key={i} className="flex items-center gap-2 text-sm text-gray-600">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />{u}
                 </li>
               ))}
-              {uslugi.length > 5 && <li className="text-xs text-gray-400">+ {uslugi.length - 5} więcej</li>}
+              {(uslugi || []).length > 5 && <li className="text-xs text-gray-400">+ {(uslugi || []).length - 5} więcej</li>}
             </ul>
           </div>
 

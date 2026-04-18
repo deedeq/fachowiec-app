@@ -15,7 +15,7 @@ router.use(adminMiddleware)
 router.get('/fachowcy', async (req, res) => {
   try {
     const { status } = req.query
-    let query = supabase.from('fachowcy_z_ocena').select('*').order('created_at', { ascending: false })
+    let query = supabase.from('profiles').select('*').order('created_at', { ascending: false })
     
     if (status) {
       query = query.eq('status', status)

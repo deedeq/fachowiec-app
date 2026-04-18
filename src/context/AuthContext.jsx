@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { logowanie as apiLogowanie, rejestracja as apiRejestracja, wylogowanie as apiWylogowanie, getProfil } from '../api/auth'
+import { logowanie as apiLogowanie, rejestracjaKrok1 as apiRejestracjaKrok1, uzupelnijProfil as apiUzupelnijProfil, wylogowanie as apiWylogowanie, getProfil } from '../api/auth'
 
 const AuthContext = createContext(null)
 
@@ -39,11 +39,11 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
-  const register = useCallback(async (dane) => {
+  const registerKrok1 = useCallback(async (dane) => {
     setIsLoading(true)
     setError(null)
     try {
-      const res = await apiRejestracja(dane)
+      const res = await apiRejestracjaKrok1(dane)
       setToken(res.token)
       setUser(res.user)
       return res
@@ -55,6 +55,22 @@ export function AuthProvider({ children }) {
       setIsLoading(false)
     }
   }, [])
+
+  const submitProfil = useCallback(async (dane) => {
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await apiUzupelnijProfil(dane)
+      await refreshProfil()
+      return res
+    } catch (err) {
+      const msg = err.response?.data?.error || err.message || 'Błąd aktualizacji profilu'
+      setError(msg)
+      throw new Error(msg)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [refreshProfil])
 
   const logout = useCallback(async () => {
     try { await apiWylogowanie() } catch {}
@@ -71,7 +87,7 @@ export function AuthProvider({ children }) {
   }, [token])
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, error, login, logout, register, refreshProfil, isLoggedIn: !!token }}>
+    <AuthContext.Provider value={{ user, token, isLoading, error, login, logout, registerKrok1, submitProfil, refreshProfil, isLoggedIn: !!token }}>
       {children}
     </AuthContext.Provider>
   )

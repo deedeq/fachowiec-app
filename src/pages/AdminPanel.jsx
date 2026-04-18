@@ -10,6 +10,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('pending')
   const [fachowcy, setFachowcy] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [editingUser, setEditingUser] = useState(null)
 
   useEffect(() => {
     // Basic guard
@@ -64,6 +65,26 @@ export default function AdminPanel() {
       fetchFachowcy()
     } catch (err) {
       alert('Błąd podczas zmiany roli.')
+    }
+  }
+
+  const saveEdit = async (e) => {
+    e.preventDefault()
+    try {
+      await apiClient.put(`/admin/fachowcy/${editingUser.id}`, {
+        imie: editingUser.imie,
+        nazwisko: editingUser.nazwisko,
+        email: editingUser.email,
+        telefon: editingUser.telefon,
+        specjalizacja: editingUser.specjalizacja,
+        wojewodztwo: editingUser.wojewodztwo,
+        miasto: editingUser.miasto,
+        role: editingUser.role
+      })
+      setEditingUser(null)
+      fetchFachowcy()
+    } catch (err) {
+      alert('Błąd podczas zapisywania profilu.')
     }
   }
 
@@ -158,9 +179,14 @@ export default function AdminPanel() {
                           </>
                         )}
                         {activeTab === 'all' && (
-                          <button onClick={() => handleDelete(f.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Usuń trwale">
-                            <Trash2 size={20} />
-                          </button>
+                          <>
+                            <button onClick={() => setEditingUser(f)} className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg" title="Edytuj profil">
+                              <Edit size={20} />
+                            </button>
+                            <button onClick={() => handleDelete(f.id)} className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg" title="Usuń trwale">
+                              <Trash2 size={20} />
+                            </button>
+                          </>
                         )}
                       </td>
                     </tr>
@@ -171,6 +197,53 @@ export default function AdminPanel() {
           )}
         </div>
       </div>
+
+      {/* MODAL EDYCJI */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl">
+            <h2 className="text-xl font-bold mb-4">Edycja Użytkownika</h2>
+            <form onSubmit={saveEdit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Imię</label>
+                  <input className="input-field" value={editingUser.imie || ''} onChange={e => setEditingUser({...editingUser, imie: e.target.value})} />
+                </div>
+                <div>
+                  <label className="label">Nazwisko</label>
+                  <input className="input-field" value={editingUser.nazwisko || ''} onChange={e => setEditingUser({...editingUser, nazwisko: e.target.value})} />
+                </div>
+              </div>
+              <div>
+                <label className="label">Email</label>
+                <input type="email" className="input-field" value={editingUser.email || ''} onChange={e => setEditingUser({...editingUser, email: e.target.value})} />
+              </div>
+              <div>
+                <label className="label">Telefon</label>
+                <input type="text" className="input-field" value={editingUser.telefon || ''} onChange={e => setEditingUser({...editingUser, telefon: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="label">Rola</label>
+                  <select className="input-field" value={editingUser.role || 'klient'} onChange={e => setEditingUser({...editingUser, role: e.target.value})}>
+                    <option value="klient">Klient</option>
+                    <option value="fachowiec">Fachowiec</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="label">Specjalizacja</label>
+                  <input className="input-field" value={editingUser.specjalizacja || ''} onChange={e => setEditingUser({...editingUser, specjalizacja: e.target.value})} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button type="button" onClick={() => setEditingUser(null)} className="btn-outline">Anuluj</button>
+                <button type="submit" className="btn-primary">Zapisz zmiany</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
