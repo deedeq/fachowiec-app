@@ -11,11 +11,11 @@ function OpiniaCard({ opinia }) {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center text-sm font-bold text-white">
-            {opinia.autor[0]}
+            {(opinia.autor_imie || opinia.autor || 'A')[0]}
           </div>
           <div>
-            <p className="font-semibold text-sm text-gray-900">{opinia.autor}</p>
-            <p className="text-xs text-gray-400">{opinia.data}</p>
+            <p className="font-semibold text-sm text-gray-900">{opinia.autor_imie || opinia.autor || 'Anonim'}</p>
+            <p className="text-xs text-gray-400">{new Date(opinia.created_at || opinia.data).toLocaleDateString()}</p>
           </div>
         </div>
         <Stars rating={opinia.ocena} />
