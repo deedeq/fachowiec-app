@@ -140,7 +140,7 @@ export default function PanelFachowca() {
             💬 Wiadomości
             <span className="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">3</span>
           </Link>
-          <Link to={`/fachowiec/1`} className="btn-primary text-sm py-2 px-4">
+          <Link to={`/fachowiec/${user?.profil?.id || user?.id}`} className="btn-primary text-sm py-2 px-4">
             👁️ Mój profil
           </Link>
         </div>
@@ -326,43 +326,83 @@ export default function PanelFachowca() {
 
       {/* Tab: Ustawienia profilu */}
       {activeTab === 'ustawienia' && (
-        <div className="max-w-2xl space-y-6">
-          <div className="card p-6 space-y-5">
-            <h2 className="text-lg font-bold text-gray-800">Dane profilu</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="label">Imię</label>
-                <input defaultValue={user?.imie || ''} className="input-field" />
-              </div>
-              <div>
-                <label className="label">Nazwisko</label>
-                <input defaultValue={user?.nazwisko || ''} className="input-field" />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="label">Email</label>
-                <input defaultValue={user?.email || ''} className="input-field" type="email" />
-              </div>
-              <div>
-                <label className="label">Telefon</label>
-                <input defaultValue="+48 600 000 000" className="input-field" type="tel" />
-              </div>
-              <div>
-                <label className="label">Miasto</label>
-                <input defaultValue="Warszawa" className="input-field" />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="label">Opis profilu</label>
-                <textarea
-                  rows={4}
-                  className="input-field resize-none"
-                  defaultValue="Doświadczony fachowiec z wieloletnim stażem. Specjalizuję się w pracach wykończeniowych."
-                />
-              </div>
+        <ProfileSettingsTab user={user} />
+      )}
+    </div>
+  )
+}
+
+function ProfileSettingsTab({ user }) {
+  const { submitProfil } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    imie: user?.imie || '',
+    nazwisko: user?.nazwisko || '',
+    telefon: user?.profil?.telefon || '',
+    miasto: user?.profil?.miasto || '',
+    opis: user?.profil?.opis || '',
+  })
+
+  const handleChange = (key, val) => setFormData(prev => ({ ...prev, [key]: val }))
+
+  const handleSave = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      await submitProfil(formData)
+      alert('Zapisano zmiany!')
+    } catch (err) {
+      alert('Błąd: ' + err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="card p-6 space-y-5">
+        <h2 className="text-lg font-bold text-gray-800">Dane profilu</h2>
+        <form onSubmit={handleSave}>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="label">Imię</label>
+              <input value={formData.imie} onChange={e => handleChange('imie', e.target.value)} className="input-field" disabled />
+              <p className="text-xs text-gray-400 mt-1">Imienia nie można zmienić</p>
             </div>
-            <div className="flex justify-end">
-              <button className="btn-primary text-sm px-6">💾 Zapisz zmiany</button>
+            <div>
+              <label className="label">Nazwisko</label>
+              <input value={formData.nazwisko} onChange={e => handleChange('nazwisko', e.target.value)} className="input-field" disabled />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label">Email</label>
+              <input value={user?.email || ''} className="input-field" type="email" disabled />
+            </div>
+            <div>
+              <label className="label">Telefon</label>
+              <input value={formData.telefon} onChange={e => handleChange('telefon', e.target.value)} className="input-field" type="tel" />
+            </div>
+            <div>
+              <label className="label">Miasto</label>
+              <input value={formData.miasto} onChange={e => handleChange('miasto', e.target.value)} className="input-field" />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="label">Opis profilu</label>
+              <textarea
+                rows={4}
+                className="input-field resize-none"
+                value={formData.opis}
+                onChange={e => handleChange('opis', e.target.value)}
+                placeholder="Napisz coś o sobie i swoich usługach..."
+              />
             </div>
           </div>
+          <div className="flex justify-end mt-4">
+            <button type="submit" disabled={loading} className="btn-primary text-sm px-6">
+              {loading ? 'Zapisywanie...' : '💾 Zapisz zmiany'}
+            </button>
+          </div>
+        </form>
+      </div>
 
           <div className="card p-6 space-y-4">
             <h2 className="text-lg font-bold text-gray-800">Bezpieczeństwo</h2>
