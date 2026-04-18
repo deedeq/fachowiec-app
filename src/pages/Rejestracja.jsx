@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Stepper from '../components/Stepper'
 import { kategorie, wojewodztwa } from '../data/fachowcy'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 
 const STEPS_FACHOWIEC = ['Dane osobowe', 'Lokalizacja i usługi', 'Profil']
 const STEPS_KLIENT = ['Dane osobowe']
@@ -279,6 +280,7 @@ function validateStep3(data) {
 
 // ─── Main Rejestracja page ─────────────────────────────
 export default function Rejestracja() {
+  const { t } = useTranslation()
   const { registerKrok1, submitProfil } = useAuth()
   const [step, setStep] = useState(0)
   const [done, setDone] = useState(false)
@@ -347,7 +349,7 @@ export default function Rejestracja() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="text-4xl mb-3">👤</div>
-          <h1 className="text-2xl font-extrabold text-gray-900">Zarejestruj się</h1>
+          <h1 className="text-2xl font-extrabold text-gray-900">{t('sloganRejestracja', 'Zarejestruj się')}</h1>
           <p className="text-gray-500 text-sm mt-1">Dołącz do platformy Fachowiec</p>
         </div>
 

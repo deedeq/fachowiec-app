@@ -418,8 +418,6 @@ function ProfileSettingsTab({ user }) {
               <button className="btn-outline text-sm px-6">🔒 Zmień hasło</button>
             </div>
           </div>
-        </div>
-      )}
     </div>
   )
 }

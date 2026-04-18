@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useSaved } from '../context/SavedContext'
 import { useAuth } from '../context/AuthContext'
 import { LogoIcon } from './Logo'
-import { Search } from 'lucide-react'
+import { Search, Globe } from 'lucide-react'
 
 // Notification bell component
 function NotificationBell({ count = 3 }) {
@@ -73,12 +74,15 @@ function NotificationBell({ count = 3 }) {
 }
 
 export default function Navbar() {
+  const { t, i18n } = useTranslation()
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
   const navigate = useNavigate()
   const { saved } = useSaved()
   const { isLoggedIn, user, logout } = useAuth()
   const dropdownRef = useRef(null)
+  const langRef = useRef(null)
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -86,10 +90,21 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false)
       }
+      if (langRef.current && !langRef.current.contains(e.target)) {
+        setLangOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng)
+    setLangOpen(false)
+  }
+
+  const FLAGS = { pl: '🇵🇱', en: '🇬🇧', uk: '🇺🇦', de: '🇩🇪' }
+  const currentLang = i18n.language || 'pl'
 
   const navLinkClass = ({ isActive }) =>
     `relative text-sm font-semibold transition-colors duration-200 px-1 py-2 ` +
@@ -120,7 +135,22 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-6">
-          <NavLink to="/szukaj" className={navLinkClass}>
+          <div className="relative" ref={langRef}>
+            <button onClick={() => setLangOpen(!langOpen)} className="flex items-center gap-1 hover:opacity-80 transition-opacity text-xl" title="Zmień język">
+              {FLAGS[currentLang] || FLAGS['pl']} <span className="text-xs text-gray-500">▾</span>
+            </button>
+            {langOpen && (
+              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 flex flex-col gap-1 w-16">
+                {Object.entries(FLAGS).map(([code, flag]) => (
+                  <button key={code} onClick={() => changeLanguage(code)} className="text-xl hover:bg-gray-50 py-1 transition-colors">
+                    {flag}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <NavLink to="/szukaj" className={navLinkClass} title={t('nav_szukaj')}>
             <Search size={18} />
           </NavLink>
 
@@ -142,7 +172,7 @@ export default function Navbar() {
 
               {/* Panel link */}
               <NavLink to="/panel" className={navLinkClass}>
-                📊 Panel
+                📊 {t('nav_panel', 'Panel')}
               </NavLink>
 
               {user?.role === 'admin' && (
@@ -180,14 +210,14 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        <span>📊</span> Mój panel
+                        <span>📊</span> {t('nav_moj_panel')}
                       </Link>
                       <Link
                         to="/wiadomosci"
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                       >
-                        <span>💬</span> Wiadomości
+                        <span>💬</span> {t('nav_wiadomosci')}
                         <span className="ml-auto text-xs font-bold text-primary">3</span>
                       </Link>
                       {user?.role === 'admin' && (
@@ -214,7 +244,7 @@ export default function Navbar() {
                           onClick={handleLogout}
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
-                          <span>🚪</span> Wyloguj się
+                          <span>🚪</span> {t('nav_wyloguj')}
                         </button>
                       </div>
                     </div>
@@ -226,10 +256,10 @@ export default function Navbar() {
             /* Guest: login + register */
             <div className="flex items-center gap-2">
               <Link to="/logowanie" className="btn-outline text-sm py-2 px-4">
-                Zaloguj
+                {t('nav_zaloguj')}
               </Link>
               <Link to="/rejestracja" className="btn-accent text-sm py-2 px-4">
-                🛠️ Dołącz
+                🛠️ {t('nav_zarejestruj')}
               </Link>
             </div>
           )}
@@ -302,10 +332,10 @@ export default function Navbar() {
           ) : (
             <>
               <Link to="/logowanie" className="btn-outline text-sm text-center" onClick={() => setMenuOpen(false)}>
-                Zaloguj się
+                {t('nav_zaloguj')}
               </Link>
               <Link to="/rejestracja" className="btn-accent text-sm text-center" onClick={() => setMenuOpen(false)}>
-                🛠️ Dołącz jako fachowiec
+                🛠️ {t('nav_zarejestruj_fach')}
               </Link>
             </>
           )}

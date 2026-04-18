@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { kategorie } from '../data/fachowcy'
 
 import { LogoIcon } from '../components/Logo'
@@ -54,8 +55,19 @@ const HOW_IT_WORKS = [
 ]
 
 export default function LandingPage() {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const navigate = useNavigate()
+  const [currentSlogan, setCurrentSlogan] = useState(0)
+
+  const dynamicSlogans = ['sloganDynamic1', 'sloganDynamic2', 'sloganDynamic3', 'sloganDynamic4']
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlogan((prev) => (prev + 1) % dynamicSlogans.length)
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -79,30 +91,39 @@ export default function LandingPage() {
           {/* Logo */}
           <div className="flex items-center justify-center gap-3 mb-6">
             <LogoIcon className="w-16 h-16 text-white drop-shadow-md" />
-            <h1 className="text-5xl md:text-6xl font-extrabold text-white tracking-tight">
-              Fachowiec<span className="text-[#ff6d00]">.app</span>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+              {t('sloganMain')}
             </h1>
           </div>
 
-          <p className="text-xl text-blue-100 mb-10 max-w-xl mx-auto">
-            Znajdź sprawdzonego fachowca budowlanego w Twojej okolicy
-          </p>
+          <div className="h-10 mb-8 relative text-xl text-blue-100 font-medium">
+            {dynamicSlogans.map((slug, idx) => (
+              <p
+                key={slug}
+                className={`absolute inset-0 transition-all duration-500 ease-in-out w-full text-center flex items-center justify-center ${
+                  idx === currentSlogan ? 'opacity-100 translate-y-0' : idx < currentSlogan ? 'opacity-0 -translate-y-8' : 'opacity-0 translate-y-8'
+                }`}
+              >
+                {t(slug)}
+              </p>
+            ))}
+          </div>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto mb-12 relative z-20">
             <input
               id="hero-search"
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Szukaj np. elektryk Katowice"
+              placeholder={t('hero_input')}
               className="flex-1 px-5 py-4 rounded-xl text-gray-900 text-base shadow-xl focus:outline-none focus:ring-4 focus:ring-white/30"
             />
             <button
               type="submit"
               className="px-8 py-4 bg-accent text-white font-bold rounded-xl shadow-xl hover:bg-orange-600 transition-all duration-200 hover:shadow-orange-400/30 active:scale-95 whitespace-nowrap"
             >
-              🔍 Szukaj
+              🔍 {t('hero_search')}
             </button>
           </form>
 
