@@ -56,6 +56,14 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const refreshProfil = useCallback(async () => {
+    if (!token) return
+    try {
+      const profil = await getProfil()
+      setUser((prev) => ({ ...prev, ...profil }))
+    } catch {}
+  }, [token])
+
   const submitProfil = useCallback(async (dane) => {
     setIsLoading(true)
     setError(null)
@@ -77,14 +85,6 @@ export function AuthProvider({ children }) {
     setToken(null)
     setUser(null)
   }, [])
-
-  const refreshProfil = useCallback(async () => {
-    if (!token) return
-    try {
-      const profil = await getProfil()
-      setUser((prev) => ({ ...prev, ...profil }))
-    } catch {}
-  }, [token])
 
   return (
     <AuthContext.Provider value={{ user, token, isLoading, error, login, logout, registerKrok1, submitProfil, refreshProfil, isLoggedIn: !!token }}>
