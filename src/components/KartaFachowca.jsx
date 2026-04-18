@@ -16,12 +16,14 @@ function Stars({ rating }) {
 }
 
 function Avatar({ imie, nazwisko }) {
-  const initials = `${imie[0]}${nazwisko[0]}`
+  const safeImie = imie || '?'
+  const safeNazwisko = nazwisko || '?'
+  const initials = `${safeImie[0]}${safeNazwisko[0]}`
   const colors = ['bg-blue-500','bg-green-500','bg-purple-500','bg-orange-500','bg-teal-500','bg-rose-500','bg-indigo-500']
-  const color = colors[(imie.charCodeAt(0) + nazwisko.charCodeAt(0)) % colors.length]
+  const color = colors[(safeImie.charCodeAt(0) + safeNazwisko.charCodeAt(0)) % colors.length] || colors[0]
   return (
     <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center text-white font-bold text-lg shrink-0`}>
-      {initials}
+      {initials.toUpperCase()}
     </div>
   )
 }
