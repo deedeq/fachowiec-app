@@ -32,6 +32,7 @@ router.get('/', async (req, res) => {
       .from('fachowcy_z_ocena')
       .select('*', { count: 'exact' })
       .eq('status', 'approved')
+      .eq('role', 'fachowiec')
 
     if (wojewodztwo) q = q.ilike('wojewodztwo', wojewodztwo)
     if (specjalizacja) q = q.ilike('specjalizacja', specjalizacja)
