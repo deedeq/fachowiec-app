@@ -14,8 +14,15 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 // ── Middleware ────────────────────────────────────────────────
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:3000', 'https://fachowiec-app.vercel.app']
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('vercel.app')) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true,
 }))
 app.use(express.json())
@@ -44,6 +51,10 @@ app.use((err, _req, res, _next) => {
 })
 
 // ── Start ─────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`🚀 Fachowiec API running on http://localhost:${PORT}`)
-})
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Fachowiec API running on http://localhost:${PORT}`)
+  })
+}
+
+export default app
