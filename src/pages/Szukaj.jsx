@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { fachowcy } from '../data/fachowcy'
+import { apiClient } from '../api/client'
 import KartaFachowca from '../components/KartaFachowca'
 import Filtry from '../components/Filtry'
 
@@ -18,12 +18,7 @@ const SORTOWANIE_OPTIONS = [
   { value: 'opinie', label: '💬 Najwięcej opinii' },
 ]
 
-function normalizeStr(s) {
-  return s.toLowerCase()
-    .replace(/ą/g, 'a').replace(/ć/g, 'c').replace(/ę/g, 'e')
-    .replace(/ł/g, 'l').replace(/ń/g, 'n').replace(/ó/g, 'o')
-    .replace(/ś/g, 's').replace(/ź|ż/g, 'z')
-}
+
 
 export default function Szukaj() {
   const [searchParams] = useSearchParams()
@@ -42,41 +37,39 @@ export default function Szukaj() {
     setQuery(inputVal)
   }
 
-  const wyniki = useMemo(() => {
-    let lista = fachowcy
+  const [wyniki, setWyniki] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-    if (query) {
-      const q = normalizeStr(query)
-      lista = lista.filter((f) => {
-        const hay = normalizeStr(`${f.imie} ${f.nazwisko} ${f.specjalizacja} ${f.miasto} ${f.wojewodztwo}`)
-        return hay.includes(q)
-      })
+  useEffect(() => {
+    async function fetchWyniki() {
+      setIsLoading(true)
+      try {
+        const params = {
+          sortuj: sortowanie,
+          szukaj: query || undefined,
+          wojewodztwo: filtry.wojewodztwo || undefined,
+          typ: filtry.typ || undefined,
+          specjalizacja: filtry.kategoria || undefined,
+          tylko_zweryfikowani: filtry.tylkoZweryfikowani ? 'true' : undefined
+        }
+        
+        const res = await apiClient.get('/fachowcy', { params })
+        let data = res.data.fachowcy || []
+        
+        // Backend API currently supports cena_max. We have cenaMin in UI, filter client-side for now
+        if (filtry.cenaMin > 0) {
+          data = data.filter(f => f.cena_od >= filtry.cenaMin)
+        }
+        
+        setWyniki(data)
+      } catch (err) {
+        console.error('Błąd pobierania danych z API', err)
+      } finally {
+        setIsLoading(false)
+      }
     }
-
-    if (filtry.wojewodztwo) {
-      const wNorm = normalizeStr(filtry.wojewodztwo)
-      lista = lista.filter((f) => normalizeStr(f.wojewodztwo) === wNorm)
-    }
-    if (filtry.typ) {
-      lista = lista.filter((f) => f.typ === filtry.typ || f.typ === 'oba')
-    }
-    if (filtry.kategoria) {
-      lista = lista.filter((f) => f.specjalizacja === filtry.kategoria)
-    }
-    if (filtry.cenaMin > 0) {
-      lista = lista.filter((f) => f.cenaOd >= filtry.cenaMin)
-    }
-    if (filtry.tylkoZweryfikowani) {
-      lista = lista.filter((f) => f.zweryfikowany)
-    }
-
-    // Sorting
-    const sorted = [...lista]
-    if (sortowanie === 'ocena') sorted.sort((a, b) => b.ocena - a.ocena)
-    else if (sortowanie === 'cena') sorted.sort((a, b) => a.cenaOd - b.cenaOd)
-    else if (sortowanie === 'opinie') sorted.sort((a, b) => b.liczbaOpinii - a.liczbaOpinii)
-
-    return sorted
+    
+    fetchWyniki()
   }, [query, filtry, sortowanie])
 
   return (
@@ -153,7 +146,11 @@ export default function Szukaj() {
             </div>
           </div>
 
-          {wyniki.length > 0 ? (
+          {isLoading ? (
+            <div className="card p-12 text-center text-gray-400">
+              Ładowanie wyników...
+            </div>
+          ) : wyniki.length > 0 ? (
             <div className="flex flex-col gap-4">
               {wyniki.map((f) => (
                 <KartaFachowca key={f.id} fachowiec={f} />

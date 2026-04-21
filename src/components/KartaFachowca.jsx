@@ -29,7 +29,10 @@ function Avatar({ imie, nazwisko }) {
 }
 
 export default function KartaFachowca({ fachowiec }) {
-  const { id, imie, nazwisko, specjalizacja, miasto, wojewodztwo, ocena, liczbaOpinii, cenaOd, zweryfikowany } = fachowiec
+  const { id, imie, nazwisko, specjalizacja, miasto, wojewodztwo, zweryfikowany } = fachowiec
+  const ocena = fachowiec.ocena ?? fachowiec.srednia_ocena ?? 0
+  const liczbaOpinii = fachowiec.liczbaOpinii ?? fachowiec.liczba_opinii ?? 0
+  const cenaOd = fachowiec.cenaOd ?? fachowiec.cena_od ?? 0
   const { toggleSave, isSaved } = useSaved()
   const saved = isSaved(id)
 
