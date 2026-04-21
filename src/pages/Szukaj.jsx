@@ -9,6 +9,7 @@ const DEFAULT_FILTRY = {
   typ: null,
   kategoria: null,
   cenaMin: 0,
+  cenaMax: 200,
   tylkoZweryfikowani: false,
 }
 
@@ -56,9 +57,9 @@ export default function Szukaj() {
         const res = await apiClient.get('/fachowcy', { params })
         let data = res.data.fachowcy || []
         
-        // Backend API currently supports cena_max. We have cenaMin in UI, filter client-side for now
-        if (filtry.cenaMin > 0) {
-          data = data.filter(f => f.cena_od >= filtry.cenaMin)
+        // Backend API currently supports cena_max. We have cenaMin and cenaMax in UI, filter client-side for now
+        if (filtry.cenaMin > 0 || filtry.cenaMax < 200) {
+          data = data.filter(f => f.cena_od >= filtry.cenaMin && f.cena_od <= filtry.cenaMax)
         }
         
         setWyniki(data)
@@ -135,7 +136,7 @@ export default function Szukaj() {
                 </div>
               </div>
 
-              {Object.values({ ...filtry, cenaMin: filtry.cenaMin > 0 ? filtry.cenaMin : null }).some(Boolean) && (
+              {Object.values({ ...filtry, cenaMin: filtry.cenaMin > 0 ? filtry.cenaMin : null, cenaMax: filtry.cenaMax < 200 ? filtry.cenaMax : null }).some(Boolean) && (
                 <button
                   className="text-xs text-gray-400 hover:text-red-500 transition-colors"
                   onClick={() => setFiltry(DEFAULT_FILTRY)}

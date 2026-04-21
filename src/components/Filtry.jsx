@@ -56,20 +56,38 @@ export default function Filtry({ filtry, onFiltry }) {
       {/* Cena */}
       <div className="card p-4">
         <h3 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wide">
-          💰 Cena od <span className="text-primary">{cenaMin} zł/h</span>
+          💰 Cena <span className="text-primary">{filtry.cenaMin} - {filtry.cenaMax} zł/h</span>
         </h3>
-        <input
-          type="range"
-          min={0}
-          max={200}
-          step={10}
-          value={cenaMin}
-          onChange={(e) => update('cenaMin', Number(e.target.value))}
-          className="w-full"
-        />
-        <div className="flex justify-between text-xs text-gray-400 mt-1">
-          <span>0 zł</span>
-          <span>200 zł</span>
+        
+        <div className="space-y-4 mt-2">
+          <div>
+            <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <span>Od: {filtry.cenaMin} zł</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={200}
+              step={10}
+              value={filtry.cenaMin}
+              onChange={(e) => update('cenaMin', Math.min(Number(e.target.value), filtry.cenaMax - 10))}
+              className="w-full accent-primary"
+            />
+          </div>
+          <div>
+            <div className="flex justify-between text-xs text-gray-500 mb-1">
+              <span>Do: {filtry.cenaMax} zł</span>
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={200}
+              step={10}
+              value={filtry.cenaMax}
+              onChange={(e) => update('cenaMax', Math.max(Number(e.target.value), filtry.cenaMin + 10))}
+              className="w-full accent-primary"
+            />
+          </div>
         </div>
       </div>
 
